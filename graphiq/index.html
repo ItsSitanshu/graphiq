@@ -52,26 +52,32 @@
       import { getCurrentWindow } from '@tauri-apps/api/window';
       const appWindow = getCurrentWindow();
       
-      // 1. Window Controls Logic
-      let isMaximized = false;
       const maxIcon = document.getElementById('icon-maximize');
+      let isMaximized = false;
+
+      const syncMaxIcon = async () => {
+        isMaximized = await appWindow.isMaximized();
+        maxIcon.src = isMaximized ? "/src/assets/min.svg" : "/src/assets/max.svg";
+      };
+
+      syncMaxIcon();
+
+      appWindow.onResized(async () => {
+        await syncMaxIcon();
+      });
 
       document.getElementById('btn-minimize').addEventListener('click', () => appWindow.minimize());
       document.getElementById('btn-close').addEventListener('click', () => appWindow.close());
       
       document.getElementById('btn-maximize').addEventListener('click', async () => {
         await appWindow.toggleMaximize();
-        isMaximized = !isMaximized;
-        maxIcon.src = isMaximized ? "/src/assets/min.svg" : "/src/assets/max.svg";
       });
 
-      // 2. Toggleable Alt Key Logic
       window.addEventListener('keydown', (e) => {
         if (e.key === 'Alt') {
-          e.preventDefault(); // Prevents the default OS menu from stealing focus
+          e.preventDefault(); 
           const elements = document.querySelectorAll('._visuals1');
           elements.forEach(el => {
-            // Toggles between transparent decoration and solid white
             el.classList.toggle('decoration-transparent');
             el.classList.toggle('decoration-white');
           });
