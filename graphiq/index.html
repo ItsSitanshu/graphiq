@@ -4,11 +4,79 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri + React + Typescript</title>
+    <title>GraphIQ</title>
   </head>
+  
+  <div data-tauri-drag-region class="titlebar relative z-50 flex flex-row items-center h-[3vh] min-h-12 bg-br-dark select-none border-b border-white/5 font-br">
+    <div class="relative z-10 pl-2 h-full w-full flex flex-row items-center pointer-events-none">
+      <div class="pointer-events-auto flex flex-row items-center">
+        <img class="w-12 p-1 opacity-80" src="/src/assets/logo.svg" alt="logo" />
+        
+        <ul class="flex flex-row items-center ml-3 gap-[1.5vw] text-white/70 font-light text-sm tracking-wide">
+          <li class="hover:text-white hover:cursor-pointer cursor-default group">
+            <span class="_visuals1 underline decoration-transparent underline-offset-4 transition-colors">F</span>ile
+          </li>
+          <li class="hover:text-white hover:cursor-pointer cursor-default group">
+            <span class="_visuals1 underline decoration-transparent underline-offset-4 transition-colors">E</span>dit
+          </li>
+          <li class="hover:text-white hover:cursor-pointer cursor-default group">
+            <span class="_visuals1 underline decoration-transparent underline-offset-4 transition-colors">S</span>election
+          </li>
+          <li class="hover:text-white hover:cursor-pointer cursor-default group">
+            <span class="_visuals1 underline decoration-transparent underline-offset-4 transition-colors">H</span>elp
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="relative z-10 flex flex-row h-full w-2/5 items-center justify-end pointer-events-auto">
+      <button id="btn-minimize" class="h-full px-4 hover:bg-white/10 hover:cursor-pointer transition-colors flex items-center justify-center">
+        <img src="/src/assets/collapse.svg" class="w-3" alt="min" />
+      </button>
+      
+      <button id="btn-maximize" class="h-full px-4 hover:bg-white/10 hover:cursor-pointer transition-colors flex items-center justify-center">
+        <img id="icon-maximize" src="/src/assets/max.svg" class="w-3" alt="max" />
+      </button>
+
+      <button id="btn-close" class="h-full px-5 hover:bg-red-500 hover:cursor-pointer flex items-center justify-center group">
+        <img src="/src/assets/cross.svg" class="w-3 brightness-200 group-hover:brightness-100" alt="close" />
+      </button>
+    </div>
+  </div>
 
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <script type="module">
+      import { getCurrentWindow } from '@tauri-apps/api/window';
+      const appWindow = getCurrentWindow();
+      
+      // 1. Window Controls Logic
+      let isMaximized = false;
+      const maxIcon = document.getElementById('icon-maximize');
+
+      document.getElementById('btn-minimize').addEventListener('click', () => appWindow.minimize());
+      document.getElementById('btn-close').addEventListener('click', () => appWindow.close());
+      
+      document.getElementById('btn-maximize').addEventListener('click', async () => {
+        await appWindow.toggleMaximize();
+        isMaximized = !isMaximized;
+        maxIcon.src = isMaximized ? "/src/assets/min.svg" : "/src/assets/max.svg";
+      });
+
+      // 2. Toggleable Alt Key Logic
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Alt') {
+          e.preventDefault(); // Prevents the default OS menu from stealing focus
+          const elements = document.querySelectorAll('._visuals1');
+          elements.forEach(el => {
+            // Toggles between transparent decoration and solid white
+            el.classList.toggle('decoration-transparent');
+            el.classList.toggle('decoration-white');
+          });
+        }
+      });
+    </script>
   </body>
 </html>
